@@ -5,7 +5,7 @@ properties([
   buildDiscarder(logRotator(artifactNumToKeepStr: '5', daysToKeepStr: '15'))
 ])
 
-docker.image('alecharp/java-build-tools:7a7e8f9').inside {
+docker.image('cloudbees/java-build-tools:0.0.6').inside {
   stage('Checkout') {
     checkout scm
     short_commit = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
@@ -22,13 +22,13 @@ docker.image('alecharp/java-build-tools:7a7e8f9').inside {
 
 stage('Tests') {
   parallel 'Unit tests': {
-    docker.image('alecharp/java-build-tools:7a7e8f9').inside {
+    docker.image('cloudbees/java-build-tools:0.0.6').inside {
       unstash 'project'
       sh 'mvn clean test'
       junit 'target/surefire-reports/*.xml'
     }
   }, 'Integration tests': {
-    docker.image('alecharp/java-build-tools:7a7e8f9').inside {
+    docker.image('cloudbees/java-build-tools:0.0.6').inside {
       unstash 'project'
       sh 'mvn clean test-compile failsafe:integration-test'
       junit 'target/failsafe-reports/*.xml'
